@@ -8,6 +8,7 @@ import ChatPage from './components/chat/ChatPage'
 import ProfilePage from './components/profile/ProfilePage'
 import AdminPage from './components/admin/AdminPage'
 import LivePage from './components/live/LivePage'
+import SupportCenterPage from './components/safety/SupportCenterPage'
 import './App.css'
 
 function App() {
@@ -28,6 +29,7 @@ function App() {
               <Route path="profile" element={<ProfilePage />} />
               <Route path="admin" element={<AdminPage />} />
               <Route path="live/:roomName" element={<LivePage />} />
+              <Route path="support" element={<SupportCenterPage />} />
             </Route>
           </Routes>
         </div>

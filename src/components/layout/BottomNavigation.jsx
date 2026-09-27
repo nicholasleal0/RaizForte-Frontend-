@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
-import { Home, MessageCircle, User, Settings } from 'lucide-react'
+import { Home, MessageCircle, User, Settings, HeartHandshake } from 'lucide-react'
 
 export default function BottomNavigation() {
   const { user } = useAuth()
@@ -12,6 +12,7 @@ export default function BottomNavigation() {
     { path: '/home', icon: Home, label: 'Início' },
     { path: '/chat', icon: MessageCircle, label: 'Chat' },
     { path: '/profile', icon: User, label: 'Perfil' },
+    { path: '/support', icon: HeartHandshake, label: 'Acolhimento' },
   ]
 
   // Adicionar item admin se for administrador
@@ -43,4 +44,3 @@ export default function BottomNavigation() {
     </nav>
   )
 }
-
