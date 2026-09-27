@@ -8,15 +8,15 @@ import { Textarea } from '@/components/ui/textarea'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
-import { 
-  Users, 
-  UserPlus, 
-  Shield, 
-  Eye, 
-  EyeOff, 
-  Ban, 
-  UserX, 
-  CheckCircle, 
+import {
+  Users,
+  UserPlus,
+  Shield,
+  Eye,
+  EyeOff,
+  Ban,
+  UserX,
+  CheckCircle,
   XCircle,
   Settings,
   Key,
@@ -29,19 +29,17 @@ export default function AdminPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
-  
+
   // Estados para diferentes seções
   const [admins, setAdmins] = useState([])
   const [users, setUsers] = useState([])
-  const [mentors, setMentors] = useState([])
   const [pendingMentors, setPendingMentors] = useState([])
   const [logs, setLogs] = useState([])
-  
+
   // Estados para formulários
   const [newAdminEmail, setNewAdminEmail] = useState('')
   const [newAdminName, setNewAdminName] = useState('')
   const [newPassword, setNewPassword] = useState('')
-  const [selectedUser, setSelectedUser] = useState(null)
   const [actionReason, setActionReason] = useState('')
 
   useEffect(() => {
@@ -51,6 +49,8 @@ export default function AdminPage() {
       loadMentors()
       loadLogs()
     }
+  // As funções de carregamento são definidas no componente e só são usadas quando o papel muda.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user])
 
   const loadAdmins = async () => {
@@ -135,14 +135,14 @@ export default function AdminPage() {
       const data = await response.json()
 
       if (response.ok) {
-        setSuccess('Administrador criado com sucesso! Senha padrão: 1234')
+        setSuccess(`Administrador criado. Senha temporária: ${data.temporary_password}`)
         setNewAdminEmail('')
         setNewAdminName('')
         loadAdmins()
       } else {
         setError(data.error)
       }
-    } catch (error) {
+    } catch {
       setError('Erro ao criar administrador')
     } finally {
       setLoading(false)
@@ -179,7 +179,7 @@ export default function AdminPage() {
       } else {
         setError(data.error)
       }
-    } catch (error) {
+    } catch {
       setError('Erro ao redefinir senha')
     } finally {
       setLoading(false)
@@ -212,7 +212,7 @@ export default function AdminPage() {
       } else {
         setError(data.error)
       }
-    } catch (error) {
+    } catch {
       setError('Erro ao alterar perfil')
     } finally {
       setLoading(false)
@@ -239,7 +239,7 @@ export default function AdminPage() {
       } else {
         setError(data.error)
       }
-    } catch (error) {
+    } catch {
       setError('Erro ao restaurar perfil de admin')
     } finally {
       setLoading(false)
@@ -273,12 +273,11 @@ export default function AdminPage() {
       if (response.ok) {
         setSuccess('Usuário bloqueado com sucesso')
         setActionReason('')
-        setSelectedUser(null)
         loadUsers()
       } else {
         setError(data.error)
       }
-    } catch (error) {
+    } catch {
       setError('Erro ao bloquear usuário')
     } finally {
       setLoading(false)
@@ -312,12 +311,11 @@ export default function AdminPage() {
       if (response.ok) {
         setSuccess('Usuário suspenso com sucesso')
         setActionReason('')
-        setSelectedUser(null)
         loadUsers()
       } else {
         setError(data.error)
       }
-    } catch (error) {
+    } catch {
       setError('Erro ao suspender usuário')
     } finally {
       setLoading(false)
@@ -343,7 +341,7 @@ export default function AdminPage() {
       } else {
         setError(data.error)
       }
-    } catch (error) {
+    } catch {
       setError('Erro ao aprovar mentor')
     } finally {
       setLoading(false)
@@ -377,12 +375,11 @@ export default function AdminPage() {
       if (response.ok) {
         setSuccess('Mentor rejeitado')
         setActionReason('')
-        setSelectedUser(null)
         loadMentors()
       } else {
         setError(data.error)
       }
-    } catch (error) {
+    } catch {
       setError('Erro ao rejeitar mentor')
     } finally {
       setLoading(false)
@@ -401,7 +398,7 @@ export default function AdminPage() {
                 Você não tem permissão para acessar esta página.
               </p>
               {user?.user_type && user.user_type !== 'admin' && (
-                <Button 
+                <Button
                   onClick={restoreAdmin}
                   className="mt-4"
                   disabled={loading}
@@ -421,16 +418,16 @@ export default function AdminPage() {
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold text-gray-900">Administração</h1>
         <div className="flex space-x-2">
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             onClick={() => switchProfile('mentor')}
             disabled={loading}
           >
             <UserCheck className="w-4 h-4 mr-2" />
             Ver como Mentor
           </Button>
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             onClick={() => switchProfile('young')}
             disabled={loading}
           >
@@ -473,7 +470,7 @@ export default function AdminPage() {
                 <div className="text-2xl font-bold">{users.length}</div>
               </CardContent>
             </Card>
-            
+
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Mentores Pendentes</CardTitle>
@@ -483,7 +480,7 @@ export default function AdminPage() {
                 <div className="text-2xl font-bold">{pendingMentors.length}</div>
               </CardContent>
             </Card>
-            
+
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Administradores</CardTitle>
@@ -576,13 +573,13 @@ export default function AdminPage() {
                       </Badge>
                       {user.is_blocked && <Badge variant="destructive">Bloqueado</Badge>}
                       {user.is_suspended && <Badge variant="destructive">Suspenso</Badge>}
-                      
+
                       <Dialog>
                         <DialogTrigger asChild>
-                          <Button 
-                            variant="outline" 
+                          <Button
+                            variant="outline"
                             size="sm"
-                            onClick={() => setSelectedUser(user)}
+
                           >
                             Ações
                           </Button>
@@ -605,16 +602,16 @@ export default function AdminPage() {
                               />
                             </div>
                             <div className="flex space-x-2">
-                              <Button 
-                                variant="destructive" 
+                              <Button
+                                variant="destructive"
                                 onClick={() => blockUser(user.id)}
                                 disabled={loading}
                               >
                                 <Ban className="w-4 h-4 mr-2" />
                                 Bloquear
                               </Button>
-                              <Button 
-                                variant="destructive" 
+                              <Button
+                                variant="destructive"
                                 onClick={() => suspendUser(user.id)}
                                 disabled={loading}
                               >
@@ -648,8 +645,8 @@ export default function AdminPage() {
                         <div className="text-sm text-gray-500">{mentor.email}</div>
                       </div>
                       <div className="flex space-x-2">
-                        <Button 
-                          size="sm" 
+                        <Button
+                          size="sm"
                           onClick={() => approveMentor(mentor.id)}
                           disabled={loading}
                         >
@@ -658,10 +655,10 @@ export default function AdminPage() {
                         </Button>
                         <Dialog>
                           <DialogTrigger asChild>
-                            <Button 
-                              variant="destructive" 
+                            <Button
+                              variant="destructive"
                               size="sm"
-                              onClick={() => setSelectedUser(mentor)}
+
                             >
                               <XCircle className="w-4 h-4 mr-2" />
                               Rejeitar
@@ -684,8 +681,8 @@ export default function AdminPage() {
                                   placeholder="Descreva o motivo da rejeição"
                                 />
                               </div>
-                              <Button 
-                                variant="destructive" 
+                              <Button
+                                variant="destructive"
                                 onClick={() => rejectMentor(mentor.id)}
                                 disabled={loading}
                               >

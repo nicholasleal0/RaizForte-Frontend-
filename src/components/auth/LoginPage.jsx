@@ -52,7 +52,7 @@ export default function LoginPage() {
       } else {
         setError(result.error)
       }
-    } catch (error) {
+    } catch {
       setError('Erro ao fazer login')
     } finally {
       setLoading(false)

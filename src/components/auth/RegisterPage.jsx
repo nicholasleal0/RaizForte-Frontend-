@@ -175,7 +175,7 @@ export default function RegisterPage() {
       } else {
         setError(result.error)
       }
-    } catch (error) {
+    } catch {
       setError('Erro ao realizar cadastro')
     } finally {
       setLoading(false)

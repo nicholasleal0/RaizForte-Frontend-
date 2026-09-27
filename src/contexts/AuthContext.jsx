@@ -17,13 +17,15 @@ export function AuthProvider({ children }) {
   const { showError, showSuccess } = useToast()
 
   // URL base da API
-  const API_BASE = window.location.hostname === 'localhost' 
-    ? 'http://localhost:5001/api' 
-    : 'https://y0h0i3cmwmx6.manus.space/api'
+  const API_BASE = import.meta.env.VITE_API_BASE_URL || (
+    import.meta.env.DEV ? 'http://localhost:5001/api' : '/api'
+  )
 
   // Verificar se usuário está logado ao carregar a página
   useEffect(() => {
     checkAuth()
+    // checkAuth é estável durante o ciclo de montagem do provider.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const checkAuth = async () => {
@@ -64,7 +66,7 @@ export function AuthProvider({ children }) {
         showError(data.error || 'Erro ao fazer login')
         return { success: false, error: data.error }
       }
-    } catch (error) {
+    } catch {
       showError('Erro de conexão. Tente novamente.')
       return { success: false, error: 'Erro de conexão' }
     }
@@ -95,7 +97,7 @@ export function AuthProvider({ children }) {
         showError(data.error || 'Erro ao fazer cadastro')
         return { success: false, error: data.error }
       }
-    } catch (error) {
+    } catch {
       showError('Erro de conexão. Tente novamente.')
       return { success: false, error: 'Erro de conexão' }
     }
@@ -109,7 +111,7 @@ export function AuthProvider({ children }) {
       })
       setUser(null)
       showSuccess('Logout realizado com sucesso!')
-    } catch (error) {
+    } catch {
       showError('Erro ao fazer logout')
     }
   }
@@ -132,7 +134,7 @@ export function AuthProvider({ children }) {
       } else {
         return { success: false, error: data.error }
       }
-    } catch (error) {
+    } catch {
       return { success: false, error: 'Erro de conexão' }
     }
   }
