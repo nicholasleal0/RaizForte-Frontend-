@@ -25,7 +25,7 @@ import {
 } from 'lucide-react'
 
 export default function AdminPage() {
-  const { user, API_BASE } = useAuth()
+  const { user, API_BASE, apiFetch } = useAuth()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
@@ -55,7 +55,7 @@ export default function AdminPage() {
 
   const loadAdmins = async () => {
     try {
-      const response = await fetch(`${API_BASE}/admin/admins`, {
+      const response = await apiFetch(`${API_BASE}/admin/admins`, {
         credentials: 'include'
       })
       if (response.ok) {
@@ -69,7 +69,7 @@ export default function AdminPage() {
 
   const loadUsers = async () => {
     try {
-      const response = await fetch(`${API_BASE}/admin/users`, {
+      const response = await apiFetch(`${API_BASE}/admin/users`, {
         credentials: 'include'
       })
       if (response.ok) {
@@ -83,7 +83,7 @@ export default function AdminPage() {
 
   const loadMentors = async () => {
     try {
-      const response = await fetch(`${API_BASE}/admin/mentors`, {
+      const response = await apiFetch(`${API_BASE}/admin/mentors`, {
         credentials: 'include'
       })
       if (response.ok) {
@@ -97,7 +97,7 @@ export default function AdminPage() {
 
   const loadLogs = async () => {
     try {
-      const response = await fetch(`${API_BASE}/admin/logs`, {
+      const response = await apiFetch(`${API_BASE}/admin/logs`, {
         credentials: 'include'
       })
       if (response.ok) {
@@ -120,7 +120,7 @@ export default function AdminPage() {
     setSuccess('')
 
     try {
-      const response = await fetch(`${API_BASE}/admin/create-admin`, {
+      const response = await apiFetch(`${API_BASE}/admin/create-admin`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -160,7 +160,7 @@ export default function AdminPage() {
     setSuccess('')
 
     try {
-      const response = await fetch(`${API_BASE}/admin/reset-password`, {
+      const response = await apiFetch(`${API_BASE}/admin/reset-password`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -192,7 +192,7 @@ export default function AdminPage() {
     setSuccess('')
 
     try {
-      const response = await fetch(`${API_BASE}/admin/switch-profile`, {
+      const response = await apiFetch(`${API_BASE}/admin/switch-profile`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -225,7 +225,7 @@ export default function AdminPage() {
     setSuccess('')
 
     try {
-      const response = await fetch(`${API_BASE}/admin/restore-admin`, {
+      const response = await apiFetch(`${API_BASE}/admin/restore-admin`, {
         method: 'POST',
         credentials: 'include'
       })
@@ -257,7 +257,7 @@ export default function AdminPage() {
     setSuccess('')
 
     try {
-      const response = await fetch(`${API_BASE}/admin/block-user/${userId}`, {
+      const response = await apiFetch(`${API_BASE}/admin/block-user/${userId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -295,7 +295,7 @@ export default function AdminPage() {
     setSuccess('')
 
     try {
-      const response = await fetch(`${API_BASE}/admin/suspend-user/${userId}`, {
+      const response = await apiFetch(`${API_BASE}/admin/suspend-user/${userId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -328,7 +328,7 @@ export default function AdminPage() {
     setSuccess('')
 
     try {
-      const response = await fetch(`${API_BASE}/admin/approve-mentor/${mentorId}`, {
+      const response = await apiFetch(`${API_BASE}/admin/approve-mentor/${mentorId}`, {
         method: 'POST',
         credentials: 'include'
       })
@@ -359,7 +359,7 @@ export default function AdminPage() {
     setSuccess('')
 
     try {
-      const response = await fetch(`${API_BASE}/admin/reject-mentor/${mentorId}`, {
+      const response = await apiFetch(`${API_BASE}/admin/reject-mentor/${mentorId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

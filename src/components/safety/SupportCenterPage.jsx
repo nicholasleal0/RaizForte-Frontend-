@@ -27,7 +27,7 @@ const reportOptions = [
 ]
 
 export default function SupportCenterPage() {
-  const { API_BASE } = useAuth()
+  const { API_BASE, apiFetch } = useAuth()
   const [status, setStatus] = useState(null)
   const [supportForm, setSupportForm] = useState({
     category: 'spiritual',
@@ -47,13 +47,15 @@ export default function SupportCenterPage() {
   useEffect(() => {
     const loadStatus = async () => {
       try {
-        const response = await fetch(`${API_BASE}/safety/status`)
+        const response = await apiFetch(`${API_BASE}/safety/status`)
         if (response.ok) setStatus(await response.json())
       } catch {
         setError('Não foi possível carregar as orientações de proteção.')
       }
     }
     loadStatus()
+    // apiFetch é recriado pelo contexto; API_BASE é a dependência efetiva.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [API_BASE])
 
   const submit = async (endpoint, body, successMessage, reset) => {
@@ -61,7 +63,7 @@ export default function SupportCenterPage() {
     setError('')
     setMessage('')
     try {
-      const response = await fetch(`${API_BASE}/safety/${endpoint}`, {
+      const response = await apiFetch(`${API_BASE}/safety/${endpoint}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
