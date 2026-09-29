@@ -111,6 +111,42 @@ export function AuthProvider({ children }) {
     }
   }
 
+  const registerAnonymous = async (mentorshipGroup = 'neutral') => {
+    try {
+      const response = await apiFetch(`${API_BASE}/auth/anonymous-register`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mentorship_group: mentorshipGroup })
+      })
+      const data = await response.json()
+      if (response.ok) {
+        csrfToken.current = null
+        setUser(data.user)
+        return { success: true, user: data.user, recoveryCode: data.recovery_code }
+      }
+      return { success: false, error: data.error }
+    } catch {
+      return { success: false, error: 'Erro de conexão' }
+    }
+  }
+
+  const anonymousLogin = async (recoveryCode) => {
+    try {
+      const response = await apiFetch(`${API_BASE}/auth/anonymous-login`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ recovery_code: recoveryCode })
+      })
+      const data = await response.json()
+      if (response.ok) {
+        csrfToken.current = null
+        setUser(data.user)
+        return { success: true, user: data.user }
+      }
+      return { success: false, error: data.error }
+    } catch {
+      return { success: false, error: 'Erro de conexão' }
+    }
+  }
+
   const logout = async () => {
     try {
       await apiFetch(`${API_BASE}/auth/logout`, { method: 'POST' })
@@ -135,6 +171,6 @@ export function AuthProvider({ children }) {
     }
   }
 
-  const value = { user, loading, login, register, logout, changePassword, checkAuth, API_BASE, apiFetch }
+  const value = { user, loading, login, register, registerAnonymous, anonymousLogin, logout, changePassword, checkAuth, API_BASE, apiFetch }
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }

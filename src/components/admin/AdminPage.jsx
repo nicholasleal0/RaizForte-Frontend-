@@ -562,7 +562,7 @@ export default function AdminPage() {
                 {users.filter(u => u.user_type !== 'admin').map((user) => (
                   <div key={user.id} className="flex items-center justify-between p-3 border rounded">
                     <div>
-                      <div className="font-medium">{user.display_name || user.email}</div>
+                      <div className="font-medium">{user.display_name || user.anonymous_alias || (user.is_anonymous ? 'Mentorado anônimo' : user.email)}</div>
                       <div className="text-sm text-gray-500">
                         {user.email} • {user.user_type}
                       </div>
@@ -586,7 +586,7 @@ export default function AdminPage() {
                         </DialogTrigger>
                         <DialogContent>
                           <DialogHeader>
-                            <DialogTitle>Ações para {user.display_name || user.email}</DialogTitle>
+                            <DialogTitle>Ações para {user.display_name || user.anonymous_alias || (user.is_anonymous ? 'Mentorado anônimo' : user.email)}</DialogTitle>
                             <DialogDescription>
                               Selecione uma ação para este usuário
                             </DialogDescription>

@@ -17,7 +17,7 @@ export default function HomePage() {
           Bem-vindo ao Projeto Raiz Forte
         </h1>
         <p className="text-gray-600">
-          Olá, {user?.display_name || user?.email}!
+          Olá, {user?.anonymous_alias || user?.display_name || user?.email || 'Você'}!
         </p>
       </div>
 
@@ -27,7 +27,7 @@ export default function HomePage() {
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
-            <p><strong>Email:</strong> {user?.email}</p>
+            <p><strong>Identidade:</strong> {user?.is_anonymous ? 'Protegida por anonimato' : user?.email}</p>
             <p><strong>Tipo:</strong> {user?.user_type}</p>
             <p><strong>Status:</strong> {user?.is_active ? 'Ativo' : 'Inativo'}</p>
             {user?.user_type === 'mentor' && (
@@ -46,4 +46,3 @@ export default function HomePage() {
     </div>
   )
 }
-

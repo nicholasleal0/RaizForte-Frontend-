@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { LogIn } from 'lucide-react'
 
 export default function LoginPage() {
-  const { login, user } = useAuth()
+  const { login, anonymousLogin, user } = useAuth()
   const navigate = useNavigate()
   
   const [formData, setFormData] = useState({
@@ -17,6 +17,8 @@ export default function LoginPage() {
   })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [recoveryCode, setRecoveryCode] = useState('')
+  const [showAnonymousLogin, setShowAnonymousLogin] = useState(false)
 
   // Redirecionar se já estiver logado
   useEffect(() => {
@@ -57,6 +59,20 @@ export default function LoginPage() {
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleAnonymousLogin = async (event) => {
+    event.preventDefault()
+    if (!recoveryCode.trim()) {
+      setError('Digite seu código de recuperação anônimo')
+      return
+    }
+    setLoading(true)
+    setError('')
+    const result = await anonymousLogin(recoveryCode.trim())
+    if (result.success) navigate('/home')
+    else setError(result.error)
+    setLoading(false)
   }
 
   return (
@@ -114,6 +130,25 @@ export default function LoginPage() {
               )}
             </Button>
           </form>
+
+          <div className="mt-5 border-t pt-5">
+            <Button type="button" variant="outline" className="w-full" onClick={() => setShowAnonymousLogin(!showAnonymousLogin)}>
+              {showAnonymousLogin ? 'Fechar acesso anônimo' : 'Entrar sem informar identidade'}
+            </Button>
+            {showAnonymousLogin && (
+              <form onSubmit={handleAnonymousLogin} className="mt-3 space-y-3">
+                <p className="text-sm text-gray-600">Use o código que foi mostrado quando seu espaço anônimo foi criado. Ele não é recuperável pela equipe.</p>
+                <Input
+                  aria-label="Código de recuperação anônimo"
+                  value={recoveryCode}
+                  onChange={(e) => setRecoveryCode(e.target.value)}
+                  placeholder="Código de recuperação"
+                  autoComplete="off"
+                />
+                <Button type="submit" disabled={loading} className="w-full">Reabrir meu espaço anônimo</Button>
+              </form>
+            )}
+          </div>
 
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600">

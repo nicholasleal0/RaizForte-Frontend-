@@ -11,7 +11,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { ArrowLeft, ArrowRight, User, Users, CheckCircle, Eye, EyeOff } from 'lucide-react'
 
 export default function RegisterPage() {
-  const { register, user, API_BASE } = useAuth()
+  const { register, registerAnonymous, user, API_BASE } = useAuth()
   const navigate = useNavigate()
   
   const [step, setStep] = useState(1)
@@ -20,6 +20,7 @@ export default function RegisterPage() {
   const [niches, setNiches] = useState([])
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [anonymousRecoveryCode, setAnonymousRecoveryCode] = useState('')
   
   const [formData, setFormData] = useState({
     user_type: '',
@@ -47,10 +48,10 @@ export default function RegisterPage() {
 
   // Redirecionar se já estiver logado
   useEffect(() => {
-    if (user) {
+    if (user && !anonymousRecoveryCode) {
       navigate('/home')
     }
-  }, [user, navigate])
+  }, [user, anonymousRecoveryCode, navigate])
 
   // Carregar nichos
   useEffect(() => {
@@ -98,6 +99,15 @@ export default function RegisterPage() {
     }))
   }
 
+  const handleAnonymousRegister = async () => {
+    setLoading(true)
+    setError('')
+    const result = await registerAnonymous(formData.mentorship_group)
+    if (result.success) setAnonymousRecoveryCode(result.recoveryCode)
+    else setError(result.error)
+    setLoading(false)
+  }
+
   const validateStep = () => {
     setError('')
     
@@ -126,8 +136,8 @@ export default function RegisterPage() {
         return false
       }
       
-      if (formData.password.length < 6) {
-        setError('A senha deve ter pelo menos 6 caracteres')
+      if (formData.password.length < 8) {
+        setError('A senha deve ter pelo menos 8 caracteres, com maiúscula, minúscula e número')
         return false
       }
       
@@ -261,6 +271,21 @@ export default function RegisterPage() {
                 >
                   Continuar <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
+
+                <div className="border-t pt-4 text-center">
+                  <p className="mb-2 text-sm text-gray-600">Não quer informar sua identidade agora?</p>
+                  <Button type="button" variant="outline" className="w-full" onClick={handleAnonymousRegister} disabled={loading}>
+                    {loading ? 'Criando espaço seguro...' : 'Criar espaço anônimo'}
+                  </Button>
+                </div>
+                {anonymousRecoveryCode && (
+                  <div className="rounded-md border border-blue-200 bg-blue-50 p-4 text-sm text-blue-950">
+                    <strong>Guarde este código de recuperação:</strong>
+                    <code className="mt-2 block break-all rounded bg-white p-2 text-center font-mono">{anonymousRecoveryCode}</code>
+                    <p className="mt-2">Ele é a única forma de reabrir este espaço. A equipe não consegue recuperá-lo.</p>
+                    <Button type="button" className="mt-3 w-full" onClick={() => navigate('/home')}>Entrar no meu espaço</Button>
+                  </div>
+                )}
               </div>
             )}
 
@@ -517,4 +542,3 @@ export default function RegisterPage() {
     </div>
   )
 }
-
