@@ -101,7 +101,12 @@ export function AuthProvider({ children }) {
         setUser(data.user)
         if (data.needs_approval) showSuccess('Cadastro realizado! Aguarde aprovação do administrador.')
         else showSuccess('Cadastro realizado com sucesso!')
-        return { success: true, user: data.user, needsApproval: data.needs_approval }
+        return {
+          success: true,
+          user: data.user,
+          needsApproval: data.needs_approval,
+          emailVerificationRequired: data.email_verification_required
+        }
       }
       showError(data.error || 'Erro ao fazer cadastro')
       return { success: false, error: data.error }
@@ -111,17 +116,16 @@ export function AuthProvider({ children }) {
     }
   }
 
-  const registerAnonymous = async (mentorshipGroup = 'neutral') => {
+  const verifyEmail = async (code) => {
     try {
-      const response = await apiFetch(`${API_BASE}/auth/anonymous-register`, {
+      const response = await apiFetch(`${API_BASE}/auth/verify-email`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ mentorship_group: mentorshipGroup })
+        body: JSON.stringify({ code })
       })
       const data = await response.json()
       if (response.ok) {
-        csrfToken.current = null
         setUser(data.user)
-        return { success: true, user: data.user, recoveryCode: data.recovery_code }
+        return { success: true, user: data.user }
       }
       return { success: false, error: data.error }
     } catch {
@@ -129,19 +133,11 @@ export function AuthProvider({ children }) {
     }
   }
 
-  const anonymousLogin = async (recoveryCode) => {
+  const resendVerification = async () => {
     try {
-      const response = await apiFetch(`${API_BASE}/auth/anonymous-login`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ recovery_code: recoveryCode })
-      })
+      const response = await apiFetch(`${API_BASE}/auth/resend-verification`, { method: 'POST' })
       const data = await response.json()
-      if (response.ok) {
-        csrfToken.current = null
-        setUser(data.user)
-        return { success: true, user: data.user }
-      }
-      return { success: false, error: data.error }
+      return response.ok ? { success: true, developmentCode: data.development_code } : { success: false, error: data.error }
     } catch {
       return { success: false, error: 'Erro de conexão' }
     }
@@ -171,6 +167,6 @@ export function AuthProvider({ children }) {
     }
   }
 
-  const value = { user, loading, login, register, registerAnonymous, anonymousLogin, logout, changePassword, checkAuth, API_BASE, apiFetch }
+  const value = { user, loading, login, register, verifyEmail, resendVerification, logout, changePassword, checkAuth, API_BASE, apiFetch }
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }

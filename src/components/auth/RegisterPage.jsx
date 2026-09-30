@@ -6,12 +6,11 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Checkbox } from '@/components/ui/checkbox'
 import { Textarea } from '@/components/ui/textarea'
 import { ArrowLeft, ArrowRight, User, Users, CheckCircle, Eye, EyeOff } from 'lucide-react'
 
 export default function RegisterPage() {
-  const { register, registerAnonymous, user, API_BASE } = useAuth()
+  const { register, verifyEmail, resendVerification, user, API_BASE } = useAuth()
   const navigate = useNavigate()
   
   const [step, setStep] = useState(1)
@@ -20,7 +19,8 @@ export default function RegisterPage() {
   const [niches, setNiches] = useState([])
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-  const [anonymousRecoveryCode, setAnonymousRecoveryCode] = useState('')
+  const [verificationCode, setVerificationCode] = useState('')
+  const [verificationRequired, setVerificationRequired] = useState(false)
   
   const [formData, setFormData] = useState({
     user_type: '',
@@ -48,10 +48,10 @@ export default function RegisterPage() {
 
   // Redirecionar se já estiver logado
   useEffect(() => {
-    if (user && !anonymousRecoveryCode) {
+    if (user && !verificationRequired) {
       navigate('/home')
     }
-  }, [user, anonymousRecoveryCode, navigate])
+  }, [user, verificationRequired, navigate])
 
   // Carregar nichos
   useEffect(() => {
@@ -99,12 +99,19 @@ export default function RegisterPage() {
     }))
   }
 
-  const handleAnonymousRegister = async () => {
+  const handleVerifyEmail = async (event) => {
+    event.preventDefault()
     setLoading(true)
-    setError('')
-    const result = await registerAnonymous(formData.mentorship_group)
-    if (result.success) setAnonymousRecoveryCode(result.recoveryCode)
+    const result = await verifyEmail(verificationCode.trim())
+    if (result.success) navigate('/home')
     else setError(result.error)
+    setLoading(false)
+  }
+
+  const handleResendVerification = async () => {
+    setLoading(true)
+    const result = await resendVerification()
+    if (!result.success) setError(result.error)
     setLoading(false)
   }
 
@@ -141,7 +148,7 @@ export default function RegisterPage() {
         return false
       }
       
-      if (!formData.is_anonymous && !formData.display_name) {
+      if (formData.user_type === 'mentor' && !formData.display_name) {
         setError('Nome de exibição é obrigatório para usuários não anônimos')
         return false
       }
@@ -178,10 +185,8 @@ export default function RegisterPage() {
       const result = await register(formData)
       
       if (result.success) {
-        if (result.needsApproval) {
-          alert('Cadastro realizado! Seu perfil de mentor será analisado por nossa equipe.')
-        }
-        navigate('/home')
+        setVerificationRequired(result.emailVerificationRequired !== false)
+        if (!result.emailVerificationRequired) navigate('/home')
       } else {
         setError(result.error)
       }
@@ -214,6 +219,16 @@ export default function RegisterPage() {
             </div>
           )}
 
+          {verificationRequired ? (
+            <div className="space-y-4 rounded-lg border border-blue-200 bg-blue-50 p-4">
+              <h2 className="text-lg font-semibold">Confirme seu e-mail</h2>
+              <p className="text-sm text-gray-700">Enviamos um código aleatório para o seu e-mail. Dentro da plataforma, seu perfil continua anônimo.</p>
+              <Input aria-label="Código de verificação" value={verificationCode} onChange={(e) => setVerificationCode(e.target.value)} placeholder="Código recebido por e-mail" autoComplete="one-time-code" />
+              <Button type="button" className="w-full" onClick={handleVerifyEmail} disabled={loading}>Confirmar código</Button>
+              <Button type="button" variant="outline" className="w-full" onClick={handleResendVerification} disabled={loading}>Reenviar código</Button>
+              <p className="text-xs text-gray-600">O código expira em 10 minutos. A plataforma não armazena o código original.</p>
+            </div>
+          ) : (
           <form onSubmit={handleSubmit}>
             {/* Etapa 1: Tipo de usuário */}
             {step === 1 && (
@@ -272,20 +287,7 @@ export default function RegisterPage() {
                   Continuar <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
 
-                <div className="border-t pt-4 text-center">
-                  <p className="mb-2 text-sm text-gray-600">Não quer informar sua identidade agora?</p>
-                  <Button type="button" variant="outline" className="w-full" onClick={handleAnonymousRegister} disabled={loading}>
-                    {loading ? 'Criando espaço seguro...' : 'Criar espaço anônimo'}
-                  </Button>
-                </div>
-                {anonymousRecoveryCode && (
-                  <div className="rounded-md border border-blue-200 bg-blue-50 p-4 text-sm text-blue-950">
-                    <strong>Guarde este código de recuperação:</strong>
-                    <code className="mt-2 block break-all rounded bg-white p-2 text-center font-mono">{anonymousRecoveryCode}</code>
-                    <p className="mt-2">Ele é a única forma de reabrir este espaço. A equipe não consegue recuperá-lo.</p>
-                    <Button type="button" className="mt-3 w-full" onClick={() => navigate('/home')}>Entrar no meu espaço</Button>
-                  </div>
-                )}
+
               </div>
             )}
 
@@ -410,18 +412,8 @@ export default function RegisterPage() {
                   </div>
                 </div>
 
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="is_anonymous"
-                    checked={formData.is_anonymous}
-                    onCheckedChange={(checked) => handleInputChange('is_anonymous', checked)}
-                  />
-                  <Label htmlFor="is_anonymous" className="text-sm">
-                    Quero manter meu perfil anônimo
-                  </Label>
-                </div>
 
-                {!formData.is_anonymous && (
+                {formData.user_type === 'mentor' && (
                   <div>
                     <Label htmlFor="display_name">Nome de Exibição</Label>
                     <Input
@@ -528,6 +520,7 @@ export default function RegisterPage() {
               </div>
             )}
           </form>
+          )}
 
           <div className="mt-6 text-center">
             <p className="text-sm text-gray-600">
