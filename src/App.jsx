@@ -10,6 +10,7 @@ import AdminPage from './components/admin/AdminPage'
 import LivePage from './components/live/LivePage'
 import SupportCenterPage from './components/safety/SupportCenterPage'
 import AccessRequestsPage from './components/access/AccessRequestsPage'
+import PairingPage from './components/access/PairingPage'
 import './App.css'
 
 function App() {
@@ -32,6 +33,7 @@ function App() {
               <Route path="live/:roomName" element={<LivePage />} />
               <Route path="support" element={<SupportCenterPage />} />
               <Route path="access-requests" element={<AccessRequestsPage />} />
+              <Route path="pairing" element={<PairingPage />} />
             </Route>
           </Routes>
         </div>
